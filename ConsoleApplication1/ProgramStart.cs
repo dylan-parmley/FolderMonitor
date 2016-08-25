@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using NLog;
 
 namespace ConsoleApplication1
 {
     class ProgramStart
     {
+        private static Logger _Logger =LogManager.GetCurrentClassLogger(); 
         static void Main(string[] args)
         {
-            FolderMonitor folderMonitor = new FolderMonitor("C://Users//dylan.parmley//Desktop//FindThis", new StorageProvider());
+            FolderMonitor folderMonitor = new FolderMonitor("C://Users//dylan.parmley//Desktop//FindThis", new CloudStorageRepository());
             //folderMonitor.StorageProvider.PrintBlobFolder();
 
             //folderMonitor.StorageProvider.DeleteBlob("unitTestFile");
             //folderMonitor.StorageProvider.PrintBlobFolder();
-            folderMonitor.Observe();
-
+            //folderMonitor.Observe();
+           
+            folderMonitor.StorageProvider.DeleteBlob("Grilled Cheese");
             //folderMonitor.StorageProvider.
             //createTestFile(".pdf");
             //deleteTestFile(".pdf");
@@ -29,12 +33,12 @@ namespace ConsoleApplication1
             string pathString = "C://Users//dylan.parmley//Desktop//FindThis";
             string fileName = "unitTestFile" + fileType;
 
-            pathString = System.IO.Path.Combine(pathString, fileName);
+            pathString = Path.Combine(pathString, fileName);
 
 
-            if (!System.IO.File.Exists(pathString))
+            if (!File.Exists(pathString))
             {
-                using (System.IO.FileStream fs = System.IO.File.Create(pathString))
+                using (FileStream fs = System.IO.File.Create(pathString))
                 {
 
                 }
@@ -51,15 +55,15 @@ namespace ConsoleApplication1
         {
             string pathString = "C://Users//dylan.parmley//Desktop//FindThis";
             string fileName = "unitTestFile" + fileType;
-            pathString = System.IO.Path.Combine(pathString, fileName);
+            pathString = Path.Combine(pathString, fileName);
 
 
-            System.IO.FileInfo fi = new System.IO.FileInfo(pathString);
+            FileInfo fi = new FileInfo(pathString);
             try
             {
                 fi.Delete();
             }
-            catch (System.IO.IOException e)
+            catch (IOException e)
             {
                 Console.WriteLine(e.Message);
             }

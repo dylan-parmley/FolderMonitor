@@ -12,16 +12,16 @@ namespace ConsoleApplication1
     public class FolderMonitorDebug
     {
         public string FolderName { get; set; }
-        public IStorageProvider StorageProvider { get; set; }
+        public IStorageRepository StorageProvider { get; set; }
         public FileSystemWatcher Watcher { get; set; }
         public bool Running { get; set; }
 
-        public FolderMonitorDebug(string folderName, IStorageProvider storageProvider)
+        public FolderMonitorDebug(string folderName, IStorageRepository storageProvider)
         {
             Initialize(folderName, storageProvider);
         }
 
-        public void Initialize(string folderName, IStorageProvider storageProvider)
+        public void Initialize(string folderName, IStorageRepository storageProvider)
         {
             Running = false;
 

@@ -18,7 +18,7 @@ namespace FileWatcherTest
         [TestMethod]
         public void MOQ_Watcher_Filter_FindsPDF()
         {
-            Mock<IStorageProvider> mockStorageProvider = new Mock<IStorageProvider>();
+            Mock<IStorageRepository> mockStorageProvider = new Mock<IStorageRepository>();
             
             FolderMonitor folderMonitor = new FolderMonitor(filePath, mockStorageProvider.Object);
             folderMonitor.Observe();
@@ -35,7 +35,7 @@ namespace FileWatcherTest
         public void Watcher_Filter_FindsPDF()
         {
 
-            FolderMonitorDebug folderMonitor = new FolderMonitorDebug(filePath, new StorageProvider());
+            FolderMonitorDebug folderMonitor = new FolderMonitorDebug(filePath, new CloudStorageRepository());
             folderMonitor.Observe();
 
             createTestFile(".pdf");
@@ -48,7 +48,7 @@ namespace FileWatcherTest
         [TestMethod]
         public void MOQ_Watcher_Filter_IgnoresTxt()
         {
-            Mock<IStorageProvider> mockStorageProvider = new Mock<IStorageProvider>();
+            Mock<IStorageRepository> mockStorageProvider = new Mock<IStorageRepository>();
             FolderMonitor folderMonitor = new FolderMonitor(filePath, mockStorageProvider.Object);
             folderMonitor.Observe();
 
@@ -62,7 +62,7 @@ namespace FileWatcherTest
         [TestMethod]
         public void Watcher_Filter_IgnoresTxt()
         {
-            Mock<IStorageProvider> mockStorageProvider = new Mock<IStorageProvider>();
+            Mock<IStorageRepository> mockStorageProvider = new Mock<IStorageRepository>();
             FolderMonitorDebug folderMonitor = new FolderMonitorDebug(filePath, new StorageProviderDebug());
             folderMonitor.Observe();
 
@@ -77,7 +77,7 @@ namespace FileWatcherTest
         public void StorageProvider_CreateBlob_CreatesBlob()
         {
 
-            StorageProvider storageProvider = new StorageProvider();
+            CloudStorageRepository storageProvider = new CloudStorageRepository();
 
             //verify the file does not exist in the cloud already
 
@@ -92,7 +92,7 @@ namespace FileWatcherTest
 
             numBlobs -= storageProvider.BlobContainer.ListBlobs().OfType<CloudBlockBlob>().Count();
 
-            storageProvider.DeleteBlob();
+            storageProvider.DeleteBlob("cloudCreatedUnitTest");
             //verify the size has increased by 1
             Assert.AreEqual(numBlobs, -1);
 
@@ -103,12 +103,12 @@ namespace FileWatcherTest
         [TestMethod]
         public void StorageProvider_CreateBlob_BlobContentMatchesPDFContent()
         {
-            StorageProvider storageProvider = new StorageProvider();
+            CloudStorageRepository storageProvider = new CloudStorageRepository();
 
             //initial number of blobs in the directory
             //string filePath = "C://Users//dylan.parmley//Desktop//FindThis";
             string fileName = "contentMatches.txt";
-            string fullPath = System.IO.Path.Combine(filePath, fileName);
+            string fullPath = Path.Combine(filePath, fileName);
             DirectoryInfo directory = new DirectoryInfo(filePath);
 
             //ensure there is no file that already exists in cloud with the same name
@@ -121,17 +121,17 @@ namespace FileWatcherTest
             //long blobSize = storageProvider.BlobContainer.ListBlobs().OfType<CloudBlockBlob>().Single(b => b.Uri.ToString().Equals(fileName) ).Properties.Length;
             long blobSize = storageProvider.BlobContainer.ListBlobs().OfType<CloudBlockBlob>().Single(b => b.Name.Equals(fileName)).Properties.Length;
 
-            storageProvider.DeleteBlob();
+            storageProvider.DeleteBlob("contentMatches");
             //verify the size has increased by 1
             Assert.AreEqual(blobSize, fileSize);
         }
 
-        [ExpectedException(typeof(System.IO.FileNotFoundException),
+        [ExpectedException(typeof(FileNotFoundException),
             "Parameter index is out of range.")]
         [TestMethod]
         public void StorageProvider_BlobCreation_CatchesFileNotFoundException()
         {
-            StorageProvider storageProvider = new StorageProvider();
+            CloudStorageRepository storageProvider = new CloudStorageRepository();
 
             //ensure our test file doesnt already exist in the cloud
             storageProvider.DeleteBlob("cloudCreatedUnitTest");
@@ -177,12 +177,12 @@ namespace FileWatcherTest
             string pathString = filePath;
             string fileName = "unitTestFile" + fileType;
 
-            pathString = System.IO.Path.Combine(pathString, fileName);
+            pathString = Path.Combine(pathString, fileName);
 
 
-            if (!System.IO.File.Exists(pathString))
+            if (!File.Exists(pathString))
             {
-                using (System.IO.FileStream fs = System.IO.File.Create(pathString))
+                using (FileStream fs = File.Create(pathString))
                 {
 
                 }
@@ -199,15 +199,15 @@ namespace FileWatcherTest
         {
             string pathString = filePath;
             string fileName = "unitTestFile" + fileType;
-            pathString = System.IO.Path.Combine(pathString, fileName);
+            pathString = Path.Combine(pathString, fileName);
 
 
-            System.IO.FileInfo fi = new System.IO.FileInfo(pathString);
+            FileInfo fi = new FileInfo(pathString);
             try
             {
                 fi.Delete();
             }
-            catch (System.IO.IOException e)
+            catch (IOException e)
             {
                 Console.WriteLine(e.Message);
             }

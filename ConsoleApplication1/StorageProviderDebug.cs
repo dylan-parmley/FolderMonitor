@@ -9,7 +9,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace ConsoleApplication1
 {
-    public class StorageProviderDebug : IStorageProvider
+    public class StorageProviderDebug : IStorageRepository
     {
         CloudStorageAccount StorageAccount { get; set; }
         CloudBlobClient BlobClient { get; set; }

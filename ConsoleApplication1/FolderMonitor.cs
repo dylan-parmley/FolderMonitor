@@ -12,20 +12,25 @@ namespace ConsoleApplication1
     public class FolderMonitor : IFolderMonitor
     {
         public string FolderName { get; set; }
-        public IStorageProvider StorageProvider { get; set; }
+        public IStorageRepository StorageProvider { get; set; }
         public FileSystemWatcher Watcher { get; set; }
         public bool Running { get; set; }
 
-        public FolderMonitor(string folderName, IStorageProvider storageProvider)
+        public FolderMonitor()
+        {
+
+        }
+        public FolderMonitor(string folderName, IStorageRepository storageProvider)
         {
             Initialize(folderName, storageProvider);
 
         }
 
-        public void Initialize(string folderName, IStorageProvider storageProvider)
+        public void Initialize(string folderName, IStorageRepository storageProvider)
         {
             FolderName = folderName;
             StorageProvider = storageProvider;
+            StorageProvider.Initialize();
 
             //Create a new FileSystemWatcher and set its properties.
             Watcher = new FileSystemWatcher();
@@ -39,6 +44,8 @@ namespace ConsoleApplication1
             // Add event handlers.
             //Watcher.Changed += new FileSystemEventHandler(OnChanged);
             Watcher.Created += new FileSystemEventHandler(OnChanged);
+            
+            //Watcher.Error += new FileSystemEventHandler(OnChanged); 
         }
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
