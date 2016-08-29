@@ -6,28 +6,34 @@ using System.Threading.Tasks;
 using System.IO;
 using NLog;
 
+
+
+
 namespace ConsoleApplication1
 {
     class ProgramStart
     {
-        private static Logger _Logger =LogManager.GetCurrentClassLogger(); 
+        private static Logger _Logger = LogManager.GetCurrentClassLogger();
         static void Main(string[] args)
         {
-            FolderMonitor folderMonitor = new FolderMonitor("C://Users//dylan.parmley//Desktop//FindThis", new CloudStorageRepository());
-            //folderMonitor.StorageProvider.PrintBlobFolder();
+            //FolderMonitor folderMonitor = new FolderMonitor("/FindFolderMonitor/FridayFriday.pdf", new CloudStorageRepository(), new DropboxStorageRepository());
+            //string source ="/FindFolderMonitor/testPDF8.pdf";
+            //string destination ="C://Users//dylan.parmley//Desktop//FindThis//testPDF8.pdf";
+            //LocalFolderMonitor a = new LocalFolderMonitor("C://Users//dylan.parmley//Desktop//FindThis//", new CloudStorageRepository());
+            OnlineFolderMonitor b = new OnlineFolderMonitor( "/FindFolderMonitor", new CloudStorageRepository(), new DropboxStorageRepository("UE9mv77GK0AAAAAAAAAAC-chQ1ilK5LFJu1E0VphQgEggIMpGx-VKKS_gvLl0Eje"));
+            //a.CloudStorageProvider.Initialize();
+            
 
-            //folderMonitor.StorageProvider.DeleteBlob("unitTestFile");
-            //folderMonitor.StorageProvider.PrintBlobFolder();
-            //folderMonitor.Observe();
-           
-            folderMonitor.StorageProvider.DeleteBlob("Grilled Cheese");
-            //folderMonitor.StorageProvider.
-            //createTestFile(".pdf");
-            //deleteTestFile(".pdf");
+            //folderMonitor.Initialize(folderName, cloudStorageProvider, dropboxStorageProvider);
+            Task theTask = b.Observes();
+            theTask.Wait();
+
+          
 
 
         }
-
+        
+       
         public static void createTestFile(string fileType)
         {
             string pathString = "C://Users//dylan.parmley//Desktop//FindThis";
@@ -38,7 +44,7 @@ namespace ConsoleApplication1
 
             if (!File.Exists(pathString))
             {
-                using (FileStream fs = System.IO.File.Create(pathString))
+                using (FileStream fs = File.Create(pathString))
                 {
 
                 }

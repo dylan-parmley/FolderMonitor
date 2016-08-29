@@ -53,7 +53,7 @@ namespace ConsoleApplication1
         public void OnChanged(object source, FileSystemEventArgs e)
         {
             Running = true;
-            StorageProvider.CreateBlob(FolderName, e.Name);
+            StorageProvider.Create(FolderName, e.Name);
 
         }
     }

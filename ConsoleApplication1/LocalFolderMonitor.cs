@@ -7,30 +7,48 @@ using System.IO;
 using System.Security.Permissions;
 
 
+
 namespace ConsoleApplication1
 {
-    public class FolderMonitor : IFolderMonitor
+    public class LocalFolderMonitor : IFolderMonitor
     {
-        public string FolderName { get; set; }
-        public IStorageRepository StorageProvider { get; set; }
+        //either the dropbox folder or local file
+        public string FilePath { get; set; }
+        public IStorageRepository CloudStorageProvider { get; set; }
         public FileSystemWatcher Watcher { get; set; }
-        public bool Running { get; set; }
 
-        public FolderMonitor()
+        public  DropboxStorageRepository DropboxStorageProvider { get; set; }
+
+        public LocalFolderMonitor()
         {
 
         }
-        public FolderMonitor(string folderName, IStorageRepository storageProvider)
+        public LocalFolderMonitor(string folderName, IStorageRepository storageProvider)
         {
             Initialize(folderName, storageProvider);
 
         }
+        public LocalFolderMonitor(string folderName, IStorageRepository cloudStorageProvider,DropboxStorageRepository dropboxStorageProvider )
+        {
+            Initialize(folderName, cloudStorageProvider, dropboxStorageProvider);
+        }
+
+        public void Initialize(string folderName, IStorageRepository cloudStorageProvider, DropboxStorageRepository dropboxStorageProvider)
+        {
+            FilePath = folderName;
+            CloudStorageProvider = cloudStorageProvider;
+            CloudStorageProvider.Initialize();
+
+            DropboxStorageProvider = dropboxStorageProvider;
+            
+          
+        }
 
         public void Initialize(string folderName, IStorageRepository storageProvider)
         {
-            FolderName = folderName;
-            StorageProvider = storageProvider;
-            StorageProvider.Initialize();
+            FilePath = folderName;
+            CloudStorageProvider = storageProvider;
+            CloudStorageProvider.Initialize();
 
             //Create a new FileSystemWatcher and set its properties.
             Watcher = new FileSystemWatcher();
@@ -62,9 +80,10 @@ namespace ConsoleApplication1
         //create a blob of the file added to the folder we are watching in azure
         public void OnChanged(object source, FileSystemEventArgs e)
         {
-            StorageProvider.CreateBlob(FolderName, e.Name);
+            CloudStorageProvider.Create(FilePath, e.Name);
         }
 
+       
 
 
     }

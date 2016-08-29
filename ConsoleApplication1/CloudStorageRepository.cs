@@ -9,6 +9,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System.Security.Permissions;
 using System.IO;
 using NLog;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ConsoleApplication1
 {
@@ -19,8 +20,8 @@ namespace ConsoleApplication1
         public CloudStorageAccount StorageAccount { get; set; }
         public CloudBlobClient BlobClient { get; set; }
         public CloudBlobContainer BlobContainer { get; set; }
-        private static Logger _Logger;
-
+        private static Logger _Logger = LogManager.GetCurrentClassLogger();
+        
         public CloudStorageRepository()
         {
             
@@ -37,18 +38,36 @@ namespace ConsoleApplication1
             StorageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
             BlobClient = StorageAccount.CreateCloudBlobClient();
 
-            _Logger = LogManager.GetCurrentClassLogger();
+            
             //TODO: Change to appropriate container name
             BlobContainer = BlobClient.GetContainerReference("mycontainer");
             //catch 400 
 
-
+            PrintFolder();
             //BlobContainer = BlobClient.GetContainerReference("pdflobs");
-            BlobContainer.CreateIfNotExists();
+            try { 
+                    BlobContainer.CreateIfNotExists();
+                }
+            catch(Microsoft.WindowsAzure.Storage.StorageException e)
+            {
+                _Logger.Error("A connection was not established to the Azure Service at {0}", BlobContainer.StorageUri);
+            }
+        }
+
+        public void Create(Stream file, string fileName)
+        {
+            CloudBlockBlob blockBlob = BlobContainer.GetBlockBlobReference(fileName);
+            if (!FileExists(fileName))
+            {
+                using (var fileStream = file)
+                {
+                    blockBlob.UploadFromStream(fileStream);
+                }
+            }
         }
 
         //naming conventions? 
-        public void CreateBlob(string filePath, string fileName)
+        public void Create(string filePath, string fileName)
         {
             string fullFilePath = Path.Combine(filePath, fileName);
 
@@ -57,7 +76,7 @@ namespace ConsoleApplication1
 
             if (!FileExists(fileName))
             {
-                using (var fileStream = System.IO.File.OpenRead(fullFilePath))
+                using (var fileStream = File.OpenRead(fullFilePath))
                 {
                     blockBlob.UploadFromStream(fileStream);
                 }
@@ -72,7 +91,7 @@ namespace ConsoleApplication1
         }
 
 
-        public void DeleteBlob(string fileName)
+        public void Delete(string fileName)
         {
             CloudBlockBlob blockBlob = BlobContainer.GetBlockBlobReference(fileName);
 
@@ -97,5 +116,43 @@ namespace ConsoleApplication1
             int countOfFileNames = BlobContainer.ListBlobs().OfType<CloudBlockBlob>().Where(e => e.Name.Equals(fileName)).Count();
             return countOfFileNames >0;
         }
+        public void PrintFolder()
+        {
+            // Loop over items within the container and output the length and URI.
+            foreach (IListBlobItem item in BlobContainer.ListBlobs(null, false))
+            {
+                if (item.GetType() == typeof(CloudBlockBlob))
+                {
+                    CloudBlockBlob blob = (CloudBlockBlob)item;
+
+                    Console.WriteLine("Block blob of length {0}: {1}", blob.Properties.Length, blob.Uri);
+
+                }
+                else if (item.GetType() == typeof(CloudPageBlob))
+                {
+                    CloudPageBlob pageBlob = (CloudPageBlob)item;
+
+                    Console.WriteLine("Page blob of length {0}: {1}", pageBlob.Properties.Length, pageBlob.Uri);
+
+                }
+                else if (item.GetType() == typeof(CloudBlobDirectory))
+                {
+                    CloudBlobDirectory directory = (CloudBlobDirectory)item;
+
+                    Console.WriteLine("Directory: {0}", directory.Uri);
+                }
+            }
+        }
+        public List<string> GetFileNames()
+        {
+            var cloudBlobs = BlobContainer.ListBlobs().OfType<CloudBlockBlob>();
+            List<string> names = new List<string>();
+            foreach (CloudBlockBlob cloud in cloudBlobs)
+            {
+                names.Add(cloud.Name);
+            }
+            return names;
+        }
+        public Task<List<string>> GetFileNames(string fileName) { return null; }
     }
 }

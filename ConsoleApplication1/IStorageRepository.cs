@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-
+using System.IO;
 namespace ConsoleApplication1
 {
     public interface IStorageRepository
@@ -16,8 +16,13 @@ namespace ConsoleApplication1
         //CloudBlobClient BlobClient { get; set; }
         //CloudBlobContainer BlobContainer { get; set; }
        
+        //insert
+        void Create(string filepath, string filename);
+        void Create(Stream data, string filepath);
+        //delete
+        void Delete(string name);
         void Initialize();
-        void CreateBlob(string filepath, string filename);
-        void DeleteBlob(string name);
+        List<string> GetFileNames();
+        Task<List<string>> GetFileNames(string fileName);
     }
 }

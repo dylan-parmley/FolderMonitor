@@ -11,14 +11,14 @@ namespace ConsoleApplication1
     {
         //IFolderMonitor();
         //IFolderMonitor(string folderName, IStorageProvider storageProvider);
-        string FolderName { get; set; }
-        IStorageRepository StorageProvider { get; set; }
-        FileSystemWatcher Watcher { get; set; }
-        bool Running { get; set; }
+        string FilePath { get; set; }
+        IStorageRepository CloudStorageProvider { get; set; }
+        //FileSystemWatcher Watcher { get; set; }
+        //bool Running { get; set; }
 
-        void Initialize(string folderName, IStorageRepository storageProvider);
+        //void Initialize(string folderName, IStorageRepository storageProvider);
         void Observe();
-        void OnChanged(object source, FileSystemEventArgs e);
+        //void OnChanged(object source, FileSystemEventArgs e);
 
 
 

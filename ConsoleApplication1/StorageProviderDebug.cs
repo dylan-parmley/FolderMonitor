@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System.IO;
+
 
 namespace ConsoleApplication1
 {
-    public class StorageProviderDebug : IStorageRepository
+    public class StorageProviderDebug 
     {
         CloudStorageAccount StorageAccount { get; set; }
         CloudBlobClient BlobClient { get; set; }
         CloudBlobContainer BlobContainer { get; set; }
-        CloudBlockBlob BlockBlob { get; set; }
+       
         
 
         public bool DeleteFailed { get; set; }
@@ -22,7 +24,7 @@ namespace ConsoleApplication1
 
         public StorageProviderDebug()
         {
-            Initialize();
+            
         }
         public void Initialize()
         {
@@ -34,26 +36,29 @@ namespace ConsoleApplication1
             BlobContainer = BlobClient.GetContainerReference("mycontainer");
             BlobContainer.CreateIfNotExists();
         }
-        public void CreateBlob(string filepath, string filename)
+        public List<string> GetFileNames()
+        {
+            return null;
+        }
+        public void Create(Stream filestream, string filename) { }
+
+        public void Create(string filepath, string filename)
         {
             Console.WriteLine("CreateBlob(string " + filepath + ", string " + filename + ")");
         }
-        public void PrintBlobFolder()
+        
+        public void PrintFolder(string filePath)
         {
             Console.WriteLine("PrintBlobFolder()");
         }
-        public void DeleteBlob()
+        
+        public void Delete(string fileName)
         {
-
-            DeleteBlob(BlockBlob.Name);
-
-        }
-        public void DeleteBlob(string fileName)
-        {
+            CloudBlockBlob blockBlob = BlobContainer.GetBlockBlobReference(fileName);
             if (FileExists(fileName))
             {
-                BlockBlob = BlobContainer.GetBlockBlobReference(fileName);
-                BlockBlob.Delete();
+                blockBlob = BlobContainer.GetBlockBlobReference(fileName);
+                blockBlob.Delete();
             }
             else
             {
@@ -68,6 +73,7 @@ namespace ConsoleApplication1
             else
                 return false;
         }
+        
         //public void PrintBlobFolder()
         //{
         //    // Loop over items within the container and output the length and URI.
